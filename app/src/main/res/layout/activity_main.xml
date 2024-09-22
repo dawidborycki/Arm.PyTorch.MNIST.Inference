@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <!-- Header -->
+    <TextView
+        android:id="@+id/header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Digit Recognition"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- ImageView to display the image -->
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:contentDescription="Image for inference"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Label showing the true label of the image -->
+    <TextView
+        android:id="@+id/trueLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="True Label: N/A"
+        android:textSize="18sp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Button to select an input image -->
+    <Button
+        android:id="@+id/selectImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Load Image"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Button to run inference -->
+    <Button
+        android:id="@+id/runInferenceButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Run Inference"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- TextView to display the predicted label and inference time -->
+    <TextView
+        android:id="@+id/predictedLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Predicted Label: N/A"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/inferenceTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Inference Time: N/A ms"
+        android:textSize="18sp"/>
+</LinearLayout>
