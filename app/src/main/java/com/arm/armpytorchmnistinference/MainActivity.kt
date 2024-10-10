@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -26,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var predictedLabel: TextView
     private lateinit var inferenceTime: TextView
     private lateinit var model: Module
+    private lateinit var checkboxOptimizedModel: CheckBox  // Add CheckBox for switching models
     private var currentBitmap: Bitmap? = null
     private var currentTrueLabel: Int? = null
 
@@ -41,9 +43,10 @@ class MainActivity : AppCompatActivity() {
         runInferenceButton = findViewById(R.id.runInferenceButton)
         predictedLabel = findViewById(R.id.predictedLabel)
         inferenceTime = findViewById(R.id.inferenceTime)
+        checkboxOptimizedModel = findViewById(R.id.checkboxOptimizedModel)
 
-        // Load model from assets
-        model = Module.load(assetFilePath("model.pth"))
+        // Initially load the appropriate model based on the CheckBox state
+        loadModel()
 
         // Set up button click listener for selecting random image
         selectImageButton.setOnClickListener {
@@ -55,6 +58,27 @@ class MainActivity : AppCompatActivity() {
             currentBitmap?.let { bitmap ->
                 runInference(bitmap)
             }
+        }
+
+        // Set up listener for checkbox to switch models dynamically
+        checkboxOptimizedModel.setOnCheckedChangeListener { _, _ ->
+            loadModel()  // Reload the model when checkbox state changes
+        }
+    }
+
+    // Load the appropriate model based on the CheckBox state
+    private fun loadModel() {
+        try {
+            model = if (checkboxOptimizedModel.isChecked) {
+                // Load the optimized model
+                Module.load(assetFilePath("optimized_model.ptl"))
+            } else {
+                // Load the original model
+                Module.load(assetFilePath("model.pth"))
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            trueLabel.text = "Error loading model"
         }
     }
 
@@ -112,18 +136,25 @@ class MainActivity : AppCompatActivity() {
         return Tensor.fromBlob(floatArray, longArrayOf(1, 1, height.toLong(), width.toLong()))
     }
 
-    private fun runInference(bitmap: Bitmap) {
+    private fun runInference(bitmap: Bitmap, N: Int = 100) {
         // Convert bitmap to a float array and create a tensor with shape [1, 1, 28, 28]
         val inputTensor = createTensorFromBitmap(bitmap)
 
         // Run inference and measure time
         val inferenceTimeMicros = measureTimeMicros {
-            // Forward pass through the model
-            val outputTensor = model.forward(IValue.from(inputTensor)).toTensor()
-            val scores = outputTensor.dataAsFloatArray
+            var maxIndex = 0
+            var scores: FloatArray = FloatArray(10)
+
+            // Run inference N times
+            for (i in 1..N) {
+                // Forward pass through the model
+                val outputTensor = model.forward(IValue.from(inputTensor)).toTensor()
+                scores = outputTensor.dataAsFloatArray
+            }
 
             // Get the index of the class with the highest score
-            val maxIndex = scores.indices.maxByOrNull { scores[it] } ?: -1
+            maxIndex = scores.indices.maxByOrNull { scores[it] } ?: -1
+
             predictedLabel.text = "Predicted Label: $maxIndex"
         }
 
